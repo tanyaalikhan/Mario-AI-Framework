@@ -33,7 +33,7 @@ public class Agent implements MarioAgent {
          * action[MarioActions.LEFT.getValue()] = false;
          * action[MarioActions.RIGHT.getValue()] = false;
          */
-        switch(state) {
+        switch(state) { //Emmy
         case WALK_FORWARD:
             /**
              * if hole...
@@ -86,7 +86,7 @@ public class Agent implements MarioAgent {
      * Each should probably return the location of the respective item, null/-1 if not present
      *
      */
-    /** !!!
+    /** Tayna
      * Determines if there is an obstacle in Marios path
      * @param scene from model.getMarioSceneObservation()
      * @return location as an int of the obstacle, -1 if no obstacle
@@ -94,7 +94,7 @@ public class Agent implements MarioAgent {
     public int isObstaclePresent(int[][] scene) {
         return -1;
     }
-    /**
+    /** Nate
      * Determines if there is a brick on screen
      * @param scene from model.getMarioSceneObservation()
      * @return location as an int of the brick, -1 if no brick
@@ -102,7 +102,7 @@ public class Agent implements MarioAgent {
     public int isBrickPresent(int[][] scene) {
         return -1;
     }
-    /** !!!
+    /** Nate
      * Determines if there is a hole in Marios path
      * @param scene from model.getMarioSceneObservation()
      * @return location as an int of the hole, -1 if no hole
@@ -118,7 +118,7 @@ public class Agent implements MarioAgent {
     public int isPlatformAvailable(int[][] scene) {
         return -1;
     }
-    /** !!!
+    /** Tayna
      * Determines if there is an enemy in Marios path
      * @param enemies from model.getMarioEnemiesObservation()
      * @return location as an int of the enemy, -1 if no enemy
