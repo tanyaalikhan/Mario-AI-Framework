@@ -86,13 +86,22 @@ public class Agent implements MarioAgent {
      * Each should probably return the location of the respective item, null/-1 if not present
      *
      */
-    /** Tayna
+    /** Tanya
      * Determines if there is an obstacle in Marios path
      * @param scene from model.getMarioSceneObservation()
      * @return location as an int of the obstacle, -1 if no obstacle
      */
     public int isObstaclePresent(int[][] scene) {
-        return -1;
+         int[] inFrontOf = new int[]{getLocation(1, 0, scene), getLocation(2, 0, scene), getLocation(2, -1, scene)};
+
+    for (int value : inFrontOf) {
+        if (value == 17 || value == 23 || value == 24) {
+            return true;
+        }
+    }
+
+    return false;
+
     }
     /** Nate
      * Determines if there is a brick on screen
@@ -118,13 +127,22 @@ public class Agent implements MarioAgent {
     public int isPlatformAvailable(int[][] scene) {
         return -1;
     }
-    /** Tayna
+    /** Tanya
      * Determines if there is an enemy in Marios path
      * @param enemies from model.getMarioEnemiesObservation()
      * @return location as an int of the enemy, -1 if no enemy
+     * 11/08 iteration: what if we write the function to return a boolean instead of the coordinates 
+     * if an enemy is there, the function can point to a "attackEnemy" function that retrieves coordinates 
      */
-    public int isEnemyPresent(int[][] enemies) {
-        return -1;
+    public boolean isEnemyPresent(int[][] enemies) {
+        for (int row = -1; row <= 0; row++) {
+        for (int col = -1; col <= 1; col++) {
+            if (getLocation(col, row, enemies) > 1) {
+                return true;
+            }
+        }
+    }
+    return false;
     }
 
     @Override
