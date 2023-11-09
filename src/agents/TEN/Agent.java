@@ -109,6 +109,15 @@ public class Agent implements MarioAgent {
      * @return location as an int of the brick, -1 if no brick
      */
     public int isBrickPresent(int[][] scene) {
+        for (int row = 1; row < 3; row++) {
+            for (int col = 2; col < 8; col++) {
+                int location = getLocation(row, col, scene);
+                if (location == 22 || 24) {
+                    return location;
+                }
+            }
+        }
+
         return -1;
     }
     /** Nate
@@ -116,8 +125,16 @@ public class Agent implements MarioAgent {
      * @param scene from model.getMarioSceneObservation()
      * @return location as an int of the hole, -1 if no hole
      */
-    public int isHolePresent(int[][] scene) {
-        return -1;
+    public boolean isHolePresent(int[][] scene) {
+        for (int row = 1; row < 3; row++) {
+            for (int col = 2; col < 8; col++) {
+                if (getLocation(row, col, scene) != 0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
     /**
      * Determines if there is a platform on screen
