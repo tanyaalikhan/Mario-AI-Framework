@@ -1,0 +1,203 @@
+package agents.TEN;
+
+import engine.core.MarioAgent;
+import engine.core.MarioForwardModel;
+import engine.core.MarioTimer;
+import engine.helper.MarioActions;
+
+public class Agent implements MarioAgent {
+    private enum STATE {
+        WALK_FORWARD, WALK_BACKWARD, JUMP, ATTACK
+    }
+
+    private STATE state;
+    private boolean facing_left;
+    private boolean[] action;
+
+    private int leftCounter;
+
+
+    @Override
+    public void initialize(MarioForwardModel model, MarioTimer timer) {
+        action = new boolean[MarioActions.numberOfActions()];
+        state = STATE.WALK_FORWARD;
+        facing_left = false;
+        leftCounter = 0;
+    }
+
+    @Override
+    public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
+        int[][] scene = model.getMarioSceneObservation();
+        int[][] enemies = model.getMarioEnemiesObservation();
+
+        /** Mario Actions that we have to set in each case
+         * action[MarioActions.JUMP.getValue()] = false;
+         * action[MarioActions.SPEED.getValue()] = false;
+         * action[MarioActions.LEFT.getValue()] = false;
+         * action[MarioActions.RIGHT.getValue()] = false;
+         */
+        switch(state) {
+        case WALK_FORWARD:
+            if(isHolePresent(scene)) {
+                state = STATE.JUMP;
+                action[MarioActions.JUMP.getValue()] = true;
+                action[MarioActions.SPEED.getValue()] = true;
+            } else if(isObstaclePresent(scene)) {
+                state = STATE.JUMP;
+                action[MarioActions.JUMP.getValue()] = true;
+            } else if(isEnemyPresent(enemies)) {
+                state = STATE.JUMP;
+                action[MarioActions.JUMP.getValue()] = true;
+                action[MarioActions.SPEED.getValue()] = true;
+            } else {
+                action[MarioActions.RIGHT.getValue()] = true;
+                action[MarioActions.JUMP.getValue()] = false;
+                action[MarioActions.SPEED.getValue()] = false;
+                action[MarioActions.LEFT.getValue()] = false;
+            }
+            /**
+             * if hole...
+             * if obstacle...
+             * if brick...
+             * if platform...
+             */
+            break;
+        case ATTACK: // I don't think this will be used. No attack in MarioActions
+            /**
+             * if enemy present
+             * keep attacking or set to jump
+             * else WALKING_FORWARD
+             */
+            break;
+        case JUMP:
+            /**
+             * if holepresent...
+             * else if mario is on ground ...
+             */
+//            if(isHolePresent(scene)) {
+//                state = STATE.WALK_BACKWARD;
+//                facing_left = true;
+//                action[MarioActions.JUMP.getValue()] = false;
+//                action[MarioActions.SPEED.getValue()] = false;
+//                action[MarioActions.LEFT.getValue()] = true;
+//            }
+            if(/*(!isEnemyPresent(enemies) && !isObstaclePresent(scene)) ||*/ model.isMarioOnGround()) {
+                state = STATE.WALK_FORWARD;
+                action[MarioActions.JUMP.getValue()] = false;
+                action[MarioActions.SPEED.getValue()] = false;
+                action[MarioActions.RIGHT.getValue()] = true;
+            }
+            break;
+        case WALK_BACKWARD:
+            /**
+             * need to determine when to stop walking backwards
+             * maybe set difference between current position and obstacle/platform and use a decrementing counter
+             *
+             */
+            if (leftCounter > 5) {
+                state = STATE.WALK_FORWARD;
+                facing_left = false;
+            }
+            leftCounter++;
+            action[MarioActions.LEFT.getValue()] = true;
+            action[MarioActions.RIGHT.getValue()] = false;
+            break;
+        }
+        return action;
+    }
+
+    /**
+     * From michal agent, I don't know why 8 is used
+     * @param relX relative x position from mario
+     * @param relY relative y position from mario
+     * @param scene from model.getMarioSceneObservation()
+     * @return int that represents the location
+     */
+    private int getLocation(int relX, int relY, int[][] scene) {
+        int realX = 8 + relX;
+        int realY = 8 + relY;
+
+        return scene[realX][realY];
+    }
+    /**
+     * Look in michal.agent for inspiration
+     * We need functions to determine isObstaclePresent, isEnemyPresent, isBrickPresent,
+     *      isHolePresent, isPlatformAvailable
+     * Each should probably return the location of the respective item, null/-1 if not present
+     *
+     */
+    /** !!!
+     * Determines if there is an obstacle in Marios path
+     * @param scene from model.getMarioSceneObservation()
+     * @return location as an int of the obstacle, -1 if no obstacle
+     */
+    public boolean isObstaclePresent(int[][] scene) {
+        int[] inFrontOf = new int[]{getLocation(1, 0, scene), getLocation(2, 0, scene)};//, getLocation(2, -1, scene)};
+
+        for (int value : inFrontOf) {
+            if (value != 0) {//value == 17 || value == 23 || value == 24) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Determines if there is a brick on screen
+     * @param scene from model.getMarioSceneObservation()
+     * @return location as an int of the brick, -1 if no brick
+     */
+    public int isBrickPresent(int[][] scene) {
+        for (int row = 1; row < 3; row++) {
+            for (int col = 2; col < 8; col++) {
+                int location = getLocation(row, col, scene);
+                if (location == 22 || location == 24) {
+                    return location;
+                }
+            }
+        }
+        return -1;
+    }
+    /** !!!
+     * Determines if there is a hole in Marios path
+     * @param scene from model.getMarioSceneObservation()
+     * @return location as an int of the hole, -1 if no hole
+     */
+    public boolean isHolePresent(int[][] scene) {
+        for (int row = 1; row < 3; row++) {
+            for (int col = 2; col < 8; col++) {
+                if (getLocation(row, col, scene) != 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    /**
+     * Determines if there is a platform on screen
+     * @param scene from model.getMarioSceneObservation()
+     * @return location of left most platform as an int, -1 if no platform
+     */
+    public int isPlatformAvailable(int[][] scene) {
+        return -1;
+    }
+    /** !!!
+     * Determines if there is an enemy in Marios path
+     * @param enemies from model.getMarioEnemiesObservation()
+     * @return location as an int of the enemy, -1 if no enemy
+     */
+    public boolean isEnemyPresent(int[][] enemies) {
+        for (int row = -1; row <= 0; row++) {
+            for (int col = -1; col <= 1; col++) {
+                if (getLocation(col, row, enemies) > 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String getAgentName() {
+        return "TENAgent";
+    }
+}
