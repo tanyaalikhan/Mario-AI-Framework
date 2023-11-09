@@ -92,10 +92,10 @@ public class Agent implements MarioAgent {
      * @return location as an int of the obstacle, -1 if no obstacle
      */
     public int isObstaclePresent(int[][] scene) {
-         int[] inFrontOf = new int[]{getLocation(1, 0, scene), getLocation(2, 0, scene), getLocation(2, -1, scene)};
+         int[] inFrontOf = new int[]{getLocation(1, 0, scene), getLocation(2, 0, scene)};//, getLocation(2, -1, scene)};
 
     for (int value : inFrontOf) {
-        if (value == 17 || value == 23 || value == 24) {
+        if (value == 17 || value == 22 || value == 24) {
             return true;
         }
     }
